@@ -19,7 +19,7 @@ def initdb():
                     ('BenPople', hashlib.sha256(('H4rdw4re' + HASH_SALT).encode()).hexdigest(), 'popleb@btc.ac.uk'))
 
         cur.execute("INSERT INTO users (username, password, email) VALUES (?, ?, ?)",
-                    ('SimonWest', hashlib.sha256(('H4rdw4re' + HASH_SALT).encode()).hexdigest(), 'wests@btc.ac.uk'))
+                    ('simon', hashlib.sha256(('simon' + HASH_SALT).encode()).hexdigest(), 'wests@btc.ac.uk'))
 
         cur.execute("INSERT INTO users (username, password, email) VALUES (?, ?, ?)",
                 ('EmilyWang', hashlib.sha256(('p@ssword1' + HASH_SALT).encode()).hexdigest(), 'emilyw@xyz.com'))

@@ -16,7 +16,12 @@ def get_db_connection():
     return conn
 
 def SQL_to_json(sql_rows):
-    return jsonify([dict(ix) for ix in sql_rows])
+    if type(sql_rows) == sqlite3.Row:
+        print("Converting sqlite3.Row to dict")
+        return jsonify([dict(sql_rows)])
+    else:  
+        print("Converting sqlite3.Rows to dict")
+        return jsonify([dict(x) for x in sql_rows])
 
 @app.route('/api/users/get/all')
 def fetch_all_users():
@@ -136,10 +141,11 @@ def add_new_project():
         user_id = projectData['user_id']
         conn = get_db_connection()
         conn.execute('INSERT INTO projects (name, description, start_date, end_date, user_id) VALUES (?, ?, ?, ?, ?)', (name, description, start_date, end_date, user_id))
-
-        return jsonify({"Add_Success" : True})
-    except:
-        return jsonify({"Add_Success" : False})
+        lastId = conn.execute('SELECT last_insert_rowid()').fetchone()[0]
+        return SQL_to_json(conn.execute('SELECT * FROM projects WHERE id=?', (lastId,)).fetchone())
+    except Exception as e:
+        print(e)
+        return jsonify({"Add_Error" : False})
     finally:
         print(f"Finalising /api/projects/add")
         conn.commit()
@@ -179,8 +185,7 @@ def add_new_task():
         project_id = taskData['project_id']
         conn = get_db_connection()
         conn.execute('INSERT INTO tasks (name, description, due_date, status, project_id) VALUES (?, ?, ?, ?, ?)', (name, description, due_date, status, project_id))
-
-        return jsonify({"Add_Success" : True})
+        return jsonify(conn.execute('SELECT * FROM projects WHERE id=?', (project_id ,)).fetchone())
     except:
         return jsonify({"Add_Success" : False})
     finally:
